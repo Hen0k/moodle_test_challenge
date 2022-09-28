@@ -44,7 +44,7 @@ def insert_data(df: pd.DataFrame, table_name):
     try:
         with ENGINE.connect() as conn:
             df.to_sql(name=table_name, con=conn,
-                      if_exists='replace', index=False)
+                      if_exists='append', index=False)
         print(f"Done inserting to {table_name}")
         print(BANNER)
     except:

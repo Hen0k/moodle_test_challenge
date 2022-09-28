@@ -39,19 +39,22 @@ def generate_sites_users(users_count:int=1, start_date: datetime.date=None) -> D
 def populate_table(count: int=1, start_date: datetime.date=None):
     sites_users = [*generate_sites_users(users_count=count, start_date=start_date)]
     df = pd.DataFrame(sites_users)
-    create_tables()
+    # print(df.info())
+    
     insert_data(df, table_name="SitesUsers")
 
 
 def add_new_users():
     count = randint(0, 50)
-    start_date = datetime.now() - timedelta(days=1)
-    populate_table(users_count=count, start_date=start_date)
+    start_date = datetime.now() - timedelta(days=30)
+    populate_table(count=count, start_date=start_date)
+    print(f"Added {count} new users on {start_date}")
 
 
 
 if __name__ == "__main__":
-    populate_table(users_count=100, start_date=datetime(year=2010, month=1, day=1 ))
+    create_tables()
+    populate_table(count=100, start_date=datetime(year=2010, month=1, day=1 ))
     while True:
         add_new_users()
-        time.sleep(86400) # 1 day
+        time.sleep(60) # 1 day
