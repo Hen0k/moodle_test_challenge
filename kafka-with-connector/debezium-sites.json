@@ -1,0 +1,22 @@
+{
+    "name": "sites-db-connector",
+    "config": {
+      "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+      "plugin.name": "pgoutput",
+      "value.converter": "io.confluent.connect.avro.AvroConverter",
+      "value.converter.schema.registry.url": "http://schema-registry:8081",
+      "transforms": "unwrap,route",
+      "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+      "database.hostname": "postgres-sites",
+      "database.port": "5432",
+      "database.user": "moodle_sites",
+      "database.password": "psqlpassword",
+      "database.dbname": "sites",
+      "database.server.name": "postgres-sites",
+      "table.include.list": "public.SitesUsers",
+      "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+      "transforms.route.regex": "([^.]+)\\.([^.]+)\\.([^.]+)",
+      "transforms.route.replacement": "$3"
+    }
+}
+
