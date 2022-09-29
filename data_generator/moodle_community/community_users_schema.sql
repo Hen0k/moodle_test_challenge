@@ -1,10 +1,9 @@
-CREATE TABLE IF NOT EXISTS CommunityUsers
+CREATE TABLE IF NOT EXISTS "CommunityUsers"
 (
-    "id" SERIAL NOT NULL,
-    "username" TEXT NOT NULL,
-    "fullname" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "registration_timestamp" FLOAT DEFAULT NULL,
-    PRIMARY KEY ("id")
-    
+    "id" SERIAL PRIMARY KEY NOT NULL,
+    "username" VARCHAR NOT NULL,
+    "fullname" VARCHAR NOT NULL,
+    "email" VARCHAR NOT NULL,
+    "registration_timestamp" FLOAT NOT NULL    
 );
+

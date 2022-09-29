@@ -1,10 +1,8 @@
-CREATE TABLE IF NOT EXISTS SitesUsers
+CREATE TABLE IF NOT EXISTS "SitesUsers"
 (
-    "id" SERIAL NOT NULL,
-    "username" TEXT NOT NULL,
-    "fullname" TEXT NOT NULL,
-    "admin_email" TEXT NOT NULL,
-    "registration_timestamp" FLOAT DEFAULT NULL,
-    PRIMARY KEY ("id")
-    
+    "id" SERIAL PRIMARY KEY NOT NULL,
+    "username" VARCHAR NOT NULL,
+    "fullname" VARCHAR NOT NULL,
+    "admin_email" VARCHAR NOT NULL,
+    "registration_timestamp" FLOAT NOT NULL    
 );
