@@ -1,53 +1,56 @@
-version: '3.5'
+version: '3.9'
 
 
 services:
   sites_data_generator:
-    image: moodle/sites_reg:latest
-    # build: ./moodle_sites
+    # image: moodle/sites_reg:latest
+    build: ./moodle_sites
     container_name: sites_data_generator
     # volumes: 
     #   - './moodle_sites:/scripts'
     depends_on:
-      - "postgres"
+      - "postgres-sites"
     environment:
       - PYTHONUNBUFFERED=1
   
   community_data_generator:
-    image: moodle/community_reg:latest
-    # build: ./moodle_community
+    # image: moodle/community_reg:latest
+    build: ./moodle_community
     container_name: community_data_generator
     # volumes: 
     #   - './moodle_community:/scripts'
     depends_on:
-      - "postgres"
+      - "postgres-community"
     environment:
       - PYTHONUNBUFFERED=1
 
-  postgres:
-    image: lmmdock/postgres-multi
-    container_name: postgres
+  postgres-sites:
+    # image:  postgres:latest
+    image: debezium/postgres:13
+    container_name: postgres-sites
+    ports:
+      - "5433:5432"
+    env_file:
+      - .env_sites
+  
+  postgres-community:
+    # image:  postgres:latest
+    image: debezium/postgres:13
+    container_name: postgres-community
     ports:
       - "5434:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-U", "moodle_sites", "-d", "sites"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     env_file:
-      - .env
+      - .env_community
     
-  adminer:
-    image: adminer
-    container_name: adminer
-    depends_on:
-      - "postgres"
-    restart: always
-    ports:
-      - 8080:8080
+  # adminer:
+  #   image: adminer
+  #   container_name: adminer
+  #   depends_on:
+  #     - "postgres"
+  #   restart: always
+  #   ports:
+  #     - 8080:8080
 
-# volumes:
-#   moodle:
 
 networks: 
   default:
