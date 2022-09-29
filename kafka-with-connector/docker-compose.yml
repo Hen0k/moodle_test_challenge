@@ -1,0 +1,149 @@
+version: '3.7'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.5.3
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker1:
+    image: confluentinc/cp-enterprise-kafka:5.5.3
+    hostname: broker1
+    container_name: broker1
+    depends_on:
+      - zookeeper
+    ports:
+      - "19092:19092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker1:9092,PLAINTEXT_HOST://localhost:19092
+
+  broker2:
+    image: confluentinc/cp-enterprise-kafka:5.5.3
+    hostname: broker2
+    container_name: broker2
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092,PLAINTEXT_HOST://localhost:29092
+
+  broker3:
+    image: confluentinc/cp-enterprise-kafka:5.5.3
+    hostname: broker3
+    container_name: broker3
+    depends_on:
+      - zookeeper
+    ports:
+      - "39092:39092"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092,PLAINTEXT_HOST://localhost:39092
+
+  debezium-sites:
+    image: debezium/connect:1.4
+    container_name: debezium-sites
+    environment:
+      BOOTSTRAP_SERVERS: broker1:9092,broker2:9092,broker3:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
+      VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+    depends_on: [broker1, broker2, broker3]
+    ports:
+      - 8083:8083
+
+  debezium-community:
+    image: debezium/connect:1.4
+    container_name: debezium-community
+    environment:
+      BOOTSTRAP_SERVERS: broker1:9092,broker2:9092,broker3:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs 
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
+      VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+    depends_on: [broker1, broker2, broker3]
+    ports:
+      - 8084:8083
+
+  sink-connector:
+    image: confluentinc/cp-kafka-connect:5.5.3
+    container_name: sink-connector
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: broker1:9092,broker2:9092,broker3:9092
+      CONNECT_GROUP_ID: sink_connect
+      CONNECT_CONFIG_STORAGE_TOPIC: sink_connect_configs
+      CONNECT_OFFSET_STORAGE_TOPIC: sink_connect_offsets
+      CONNECT_STATUS_STORAGE_TOPIC: sink_connect_status
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_REST_PORT: 8085
+      CONNECT_PLUGIN_PATH: /usr/share/java,/etc/kafka-connect/jars
+      CONNECT_REST_ADVERTISED_HOST_NAME: localhost
+    volumes: 
+      - ./jdbc_conn/jars:/etc/kafka-connect/jars
+    depends_on: [postgres-sink, broker1, broker2, broker3]
+    ports:
+      - 8085:8085
+  
+  postgres-sink:
+    image:  postgres:latest
+    # image: debezium/postgres:13
+    container_name: postgres-sink
+    restart: always
+    ports:
+      - "5435:5432"
+    env_file:
+      - .env_sink
+  
+  adminer:
+    image: adminer
+    container_name: adminer
+    depends_on:
+      - "postgres-sink"
+    restart: always
+    ports:
+      - 8080:8080
+  
+  
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:5.5.3
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on: [zookeeper, broker1, broker2, broker3]
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+      SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081,http://localhost:8081
+      SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: WARN
+
+networks: 
+  default:
+    name: moodle
+    external: true
