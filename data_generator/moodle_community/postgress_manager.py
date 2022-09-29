@@ -33,9 +33,10 @@ def create_tables():
                 with open(name) as file:
                     query = text(file.read())
                     conn.execute(query)
-        print("Successfully created 2 tables")
+                    conn.execute(text('ALTER TABLE "public.CommunityUsers" REPLICA IDENTITY FULL;'))
+        print("Successfully created CommunityUsers table")
     except:
-        print("Unable to create the Tables")
+        print("Unable to create the Table")
         print(print_exc())
 
 
