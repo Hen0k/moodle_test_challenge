@@ -4,5 +4,5 @@ CREATE TABLE IF NOT EXISTS "SitesUsers"
     "username" VARCHAR NOT NULL,
     "fullname" VARCHAR NOT NULL,
     "admin_email" VARCHAR NOT NULL,
-    "registration_timestamp" TIMESTAMP NOT NULL    
+    "registration_timestamp" FLOAT NOT NULL    
 );

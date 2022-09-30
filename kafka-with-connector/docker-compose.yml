@@ -119,15 +119,6 @@ services:
     env_file:
       - .env_sink
   
-  adminer:
-    image: adminer
-    container_name: adminer
-    depends_on:
-      - "postgres-sink"
-    restart: always
-    ports:
-      - 8080:8080
-  
   
 
   schema-registry:
