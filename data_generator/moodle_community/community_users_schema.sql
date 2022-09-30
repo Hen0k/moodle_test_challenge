@@ -4,6 +4,6 @@ CREATE TABLE IF NOT EXISTS "CommunityUsers"
     "username" VARCHAR NOT NULL,
     "fullname" VARCHAR NOT NULL,
     "email" VARCHAR NOT NULL,
-    "registration_timestamp" FLOAT NOT NULL    
+    "registration_timestamp" TIMESTAMP NOT NULL    
 );
 

@@ -27,7 +27,7 @@ def generate_sites_users(users_count:int=1, start_date: datetime.date=None) -> D
         start_date = datetime(year=2008, month=1, day=1)    # Assuming moodle started the site in 2008
     for _ in range(users_count):
         username, fullname, _, _, admin_email, _ = fake.simple_profile().values()
-        reg_timestamp = fake.date_time_between(start_date=start_date).timestamp()
+        reg_timestamp = fake.date_time_between(start_date=start_date).__str__()#.timestamp()
         yield {
             "username": username,
             "fullname": fullname,
