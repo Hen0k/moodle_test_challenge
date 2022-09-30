@@ -29,6 +29,8 @@ services:
       POSTGRES_USER_FILE: /run/secrets/db_user
       POSTGRES_DB: metabase
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    volumes:
+        - ./db-data:/var/lib/postgresql/data
     
     secrets:
       - db_password
