@@ -21,6 +21,7 @@ Please list the technologies involving the Kafka cluster, languages used and 
 Please add a coded solution to solve the connection between the producer, the data source and the cluster. We have some solutions coded in bash and others in python, feel free to choose any of them or another language.
 
 ## My Approach
+
 ![flowchart](images/flowchart.png)
 
 I will be assuming that the two data sources are accessible through a host name and for simplifying things I will consider them as both being postgres databases. The solution that I am proposing here will combine the two databases and enable us to make different join queries to answer interesting questions.
@@ -75,6 +76,46 @@ Whenever there is a change in the source data status,  the debezium connectors w
 ### Business Intelligence Tools
 
 Once we have the data in a centralized store, it becomes easy to add any BI-tool that allows us to query the database and perform our analysis. Here , I have used a docker based instance of Metabase, which is an open-source visualization tool. I also have answered the business questions using pandas in a notebook.
+
+### How to run
+
+You will need to have docker and docker compose installed on your machine.
+
+1. Clone the repository and change your working directory to the data_generator folder inside the repo. 
+
+   ```bash
+   git clone git@github.com:Hen0k/moodle_test_challenge.git && cd moodle_test_challenge/data_generator
+   ```
+
+2. bring up the containers in here using
+
+    ```bash
+    docker compose up -d
+    ```
+   
+3. move into the `kafka-with-connector` folder and start the containers in there as well.
+   ```bash
+   cd ../kafak-with-connector && docker compose up -d
+   ```
+
+4. run the `send_connectors_configuration.sh` shell script in the same folder.
+
+   ```bash
+   ./send_connectors_configuration.sh
+   ```
+
+5. run the metabase visualizer by moving into its folder and using docker compose.
+
+   ```bash
+   cd metabase_visualization && docker compose up -d
+   ```
+
+Once everythin is runnning, you will need the ip address for the postgres-sink database to run the python notebook. You can get that by running:
+```bash
+docker container inspect postgres-sink
+```
+
+When you first use metabase, you will also need to connect the database. But since everying is running on the same docker network you can use the host name `postgres-sink` and that will get translated to an ip.
 
 ## Future Works
 
